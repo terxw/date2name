@@ -245,9 +245,10 @@ def get_converted_basename(matched_pattern, item):
         item_time_second = item[13:15]
         name_without_datestamp = item[15:]
         logging.debug(
-            'matched item "%s" got year "%s" month "%s" day "%s" item_time_hour "%s" item_time_minute "%s" item_time_second "%s" name_without_datestamp "%s'
+            'matched item "%s", matched_pattern "%s", got year "%s" month "%s" day "%s" item_time_hour "%s" item_time_minute "%s" item_time_second "%s" name_without_datestamp "%s'
             % (
                 item,
+                matched_pattern,
                 item_year,
                 item_month,
                 item_day,
@@ -260,7 +261,7 @@ def get_converted_basename(matched_pattern, item):
     else:
         logging.error("unknown matched pattern (internal error)")
     logging.debug(
-        'item "%s" got year "%s" month "%s" day "%s" name_without_datestamp "%s"'
+        'after match: item "%s" got year "%s" month "%s" day "%s" name_without_datestamp "%s"'
         % (item, item_year, item_month, item_day, name_without_datestamp)
     )
 
@@ -289,7 +290,7 @@ def get_converted_basename(matched_pattern, item):
         )
     elif options.withtime and matched_pattern == "long_c":
         logging.debug("%s: Conversion to withtime-format and long_c format" % item)
-        logging.debug("matched_pattern: %s pre item: %s." % matched_pattern, item)
+        logging.debug("matched_pattern: %s pre item: %s" % (matched_pattern, item))
         return (
             item_year
             + "-"
@@ -369,7 +370,6 @@ def generate_new_basename(formatstring, basename):
             + "is set: skipping further pattern matching"
         )
         new_basename = get_timestamp_from_file(formatstring, basename)
-
     elif REGEX_PATTERNS["LONG_C"].match(basename):
         logging.debug('basename "%s" matches long_c-pattern' % basename)
         new_basename = get_converted_basename("long_c", basename)
@@ -403,7 +403,7 @@ def generate_new_basename(formatstring, basename):
                 )
                 return basename
         else:
-            logging.debug("no withtime options")
+            logging.debug("seconds component, no withime options")
             new_basename = get_converted_basename("withtime", basename)
 
     elif withtime_no_seconds_components:
@@ -414,7 +414,7 @@ def generate_new_basename(formatstring, basename):
                 and withtime_and_seconds_components.group(3) == "."
             ):
                 logging.debug(
-                    "old time pattern does not match the ISO pattern for the delimiter characters. I will modify them."
+                    "withtime no seconds component, old time pattern does not match the ISO pattern for the delimiter characters. I will modify them."
                 )
                 return basename[0:10] + "T" + basename[11:13] + "." + basename[14:]
             else:
@@ -423,6 +423,7 @@ def generate_new_basename(formatstring, basename):
                 )
                 return basename
         else:
+            logging.debug("no seconds component, no withime options")
             new_basename = get_converted_basename("withtime", basename)
 
     elif REGEX_PATTERNS["STANDARD"].match(basename):
@@ -433,7 +434,9 @@ def generate_new_basename(formatstring, basename):
             )
             return basename
         else:
+            logging.debug("either withtime, or compact or mont options")
             new_basename = get_converted_basename("standard", basename)
+
     elif REGEX_PATTERNS["COMPACT"].match(basename):
         logging.debug('basename "%s" matches compact-pattern' % basename)
         if options.compact:
@@ -442,6 +445,7 @@ def generate_new_basename(formatstring, basename):
             )
             return basename
         else:
+            logging.debug("regex COMPACT, options compact")
             new_basename = get_converted_basename("compact", basename)
 
     elif REGEX_PATTERNS["SHORT"].match(basename):
@@ -452,6 +456,7 @@ def generate_new_basename(formatstring, basename):
             )
             return basename
         else:
+            logging.debug("regex SHORT, options compact")
             new_basename = get_converted_basename("compact", basename)
 
     elif REGEX_PATTERNS["MONTH"].match(basename):
