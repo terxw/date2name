@@ -370,6 +370,13 @@ def generate_new_basename(formatstring, basename):
         )
         new_basename = get_timestamp_from_file(formatstring, basename)
 
+    elif REGEX_PATTERNS["LONG_C"].match(basename):
+        logging.debug('basename "%s" matches long_c-pattern' % basename)
+        new_basename = get_converted_basename("long_c", basename)
+    elif REGEX_PATTERNS["LONG"].match(basename):
+        logging.debug('basename "%s" matches long-pattern' % basename)
+        new_basename = get_converted_basename("long", basename)
+
     elif withtime_and_seconds_components:
         logging.debug('basename "%s" matches withtime-and-seconds pattern' % basename)
         if options.withtime:
@@ -379,7 +386,7 @@ def generate_new_basename(formatstring, basename):
                 and withtime_and_seconds_components.group(5) == "."
             ):
                 logging.debug(
-                    "old time pattern does not match the ISO pattern for the delimiter characters. I will modify them."
+                    "withtime and seconds component, old time pattern does not match the ISO pattern for the delimiter characters. I will modify them."
                 )
                 return (
                     basename[0:10]
@@ -392,10 +399,11 @@ def generate_new_basename(formatstring, basename):
                 )
             else:
                 logging.debug(
-                    "old pattern is the same as the recognised, basename stays the same"
+                    "withtime and seconds component, old pattern is the same as the recognised, basename stays the same"
                 )
                 return basename
         else:
+            logging.debug("no withtime options")
             new_basename = get_converted_basename("withtime", basename)
 
     elif withtime_no_seconds_components:
@@ -417,12 +425,6 @@ def generate_new_basename(formatstring, basename):
         else:
             new_basename = get_converted_basename("withtime", basename)
 
-    elif REGEX_PATTERNS["LONG_C"].match(basename):
-        logging.debug('basename "%s" matches long_c-pattern' % basename)
-        new_basename = get_converted_basename("long_c", basename)
-    elif REGEX_PATTERNS["LONG"].match(basename):
-        logging.debug('basename "%s" matches long-pattern' % basename)
-        new_basename = get_converted_basename("long", basename)
     elif REGEX_PATTERNS["STANDARD"].match(basename):
         logging.debug('basename "%s" matches standard-pattern' % basename)
         if not options.withtime and not options.compact and not options.month:
