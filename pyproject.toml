@@ -13,6 +13,7 @@ classifiers=[
     ]
 authors = [{name="Karl Voit", email="tools@Karl-Voit.at"}]
 license = {file = "LICENSE.txt"}
+version = "2024.4.26.1"
 
 [project.urls]
 Homepage = "https://github.com/novoid/date2name"
